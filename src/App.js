@@ -14,6 +14,7 @@ function App() {
           <Route path='traditional-heroes' element={<TraditionalHeroes/>} />
           <Route path='query-heroes' element={<QueryHeroes/>} />
       </Routes>
+      
     </div>
   );
 }
