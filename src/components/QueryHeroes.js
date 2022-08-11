@@ -1,15 +1,11 @@
-import React, { useState } from 'react'
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-const fetchHeroes = () => {
-    return  axios.get('http://localhost:4000/superheroes');
-}
-
+import React, { useState } from 'react';
+import { Link, Outlet} from 'react-router-dom';
+import useCustomQuery from './useCustomQuery';
 function QueryHeroes() {
     const [time, setTime] = useState(3000);
     const onSuccess = (data) => {
         console.log('data fetching', data);
-        if(data.data.length >= 4){
+        if(data.length >= 4){
             setTime(false)
         }
     };
@@ -18,13 +14,7 @@ function QueryHeroes() {
         console.log('Error occured', error);
         setTime(false);
     }
-    const {isLoading, data, isError, error, isFetching, refetch} = useQuery(
-        ['superheroes'], 
-        fetchHeroes,
-        { refetchInterval: time,
-        onSuccess,
-        onError }
-    );
+    const {isLoading, data, isError, error, isFetching, refetch} = useCustomQuery({ onSuccess, onError})
     if(isFetching){
         return <h4>loading...</h4>
     }
@@ -38,9 +28,16 @@ function QueryHeroes() {
         <button onClick={refetch}>Fetch Heroes</button>
         {
             data?.data.map( rs => (
-                <h5 key={rs.id}>{rs.name}</h5>
+                <h5 key={rs.id}>
+                    <Link to={`/heroes/${rs.id}`}>{rs.name}</Link>
+                </h5>
             ))
         }
+        {/* {
+            data.map(hero=>(
+                <h3 key={hero}>{hero}</h3>
+            ))
+        } */}
     </div>
   )
 }
