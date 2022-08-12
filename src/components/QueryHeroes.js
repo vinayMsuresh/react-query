@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, Outlet} from 'react-router-dom';
-import useCustomQuery from './useCustomQuery';
+import {useCustomQuery, useAddSuperHero} from './useCustomQuery';
 function QueryHeroes() {
     const [time, setTime] = useState(3000);
+    const [name, setName] = useState('');
+    const [alterEgo, setAlterEgo] = useState('');
     const onSuccess = (data) => {
         console.log('data fetching', data);
         if(data.length >= 4){
@@ -14,7 +16,14 @@ function QueryHeroes() {
         console.log('Error occured', error);
         setTime(false);
     }
-    const {isLoading, data, isError, error, isFetching, refetch} = useCustomQuery({ onSuccess, onError})
+
+    const { mutate } = useAddSuperHero();
+    const {isLoading, data, isError, error, isFetching, refetch} = useCustomQuery({ onSuccess, onError});
+
+    const addHero = () => {
+        const hero = { name, alterEgo};
+        mutate(hero);
+    }
     if(isFetching){
         return <h4>loading...</h4>
     }
@@ -25,6 +34,9 @@ function QueryHeroes() {
   return (
     <div>
         <h2>Super heroes List</h2>
+        <input type='text' placeholder='Enter name' onChange={e=>setName(e.target.value)} />
+        <input type='text' placeholder='Enter alterEgo' onChange={e=>setAlterEgo(e.target.value)} />
+        <button onClick={addHero}>Add hero</button>
         <button onClick={refetch}>Fetch Heroes</button>
         {
             data?.data.map( rs => (

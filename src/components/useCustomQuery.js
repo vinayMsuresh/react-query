@@ -1,12 +1,16 @@
 import React from 'react'
-import {useQuery} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 
 const fetchHeroes = () => {
     return  axios.get('http://localhost:4000/superheroes');
 }
 
-function useCustomQuery({ onSuccess, onError}) {
+const addheroes = (hero) => {
+    return  axios.post('http://localhost:4000/superheroes', hero);
+}
+
+export function useCustomQuery({ onSuccess, onError}) {
     const query = useQuery(
         ['superheroes'], 
         fetchHeroes,
@@ -23,4 +27,7 @@ function useCustomQuery({ onSuccess, onError}) {
   return query;
 }
 
-export default useCustomQuery
+export function useAddSuperHero(){
+    return useMutation(addheroes);
+}
+
