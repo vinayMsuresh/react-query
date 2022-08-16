@@ -1,13 +1,16 @@
 import React from 'react'
-import {useMutation, useQuery} from '@tanstack/react-query';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import axios from 'axios';
+import { request } from './axios-utils';
 
 const fetchHeroes = () => {
-    return  axios.get('http://localhost:4000/superheroes');
+    return request({url: '/superheroes'});
+    // return  axios.get('http://localhost:4000/superheroes');
 }
 
 const addheroes = (hero) => {
-    return  axios.post('http://localhost:4000/superheroes', hero);
+    return request({url: '/superheroes', method: 'post', data: hero});
+    // return  axios.post('http://localhost:4000/superheroes', hero);
 }
 
 export function useCustomQuery({ onSuccess, onError}) {
@@ -15,7 +18,6 @@ export function useCustomQuery({ onSuccess, onError}) {
         ['superheroes'], 
         fetchHeroes,
         { 
-            enabled: false,
             onSuccess,
             onError,
             // select: (data) => {
@@ -28,6 +30,36 @@ export function useCustomQuery({ onSuccess, onError}) {
 }
 
 export function useAddSuperHero(){
-    return useMutation(addheroes);
+    const queryClient = useQueryClient();
+    return useMutation(addheroes, {
+        onSuccess: (data) => {
+            queryClient.invalidateQueries('superheroes');
+            // queryClient.setQueryData((oldData) => {
+            //     return {
+            //         ...oldData,
+            //         data: [...oldData.data, data.data]
+            //     }
+            // })
+        },
+        // onMutate: async(newHero) => {
+        //     await queryClient.cancelQueries('superheroes');
+        //     const previousHero = queryClient.getQueryData('superheroes');
+        //     queryClient.setQueryData((oldData) => {
+        //         return {
+        //             ...oldData,
+        //             data: [...oldData.data, {id: oldData.data?.length + 1, ...newHero}]
+        //         }
+        //     });
+        //     return {
+        //         previousHero,
+        //     }
+        // },
+        // onError: (_error, _hero, context) => {
+        //     queryClient.setQueryData('superheroes',context.previousHero);
+        // },
+        // onSettled: ()=>{
+        //     queryClient.invalidateQueries('superheroes');
+        // }
+    });
 }
 
